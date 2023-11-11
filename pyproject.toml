@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "fastapi-boilerplate"
+version = "0.1.0"
+description = ""
+authors = ["Cyclone5 <ugurtumer8@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.104.1"
+uvicorn = "^0.23.2"
+sqlalchemy = "^2.0.23"
+alembic = "^1.12.1"
+pydantic-settings = "^2.0.3"
+ruff = "^0.1.5"
+asyncpg = "^0.29.0"
+beanie = "^1.23.3"
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+pydantic = {extras = ["email"], version = "^2.4.2"}
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
