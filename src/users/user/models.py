@@ -19,6 +19,7 @@ class User(Base):
     last_name: Mapped[str] = mapped_column(nullable=False)
     password: Mapped[str] = mapped_column(nullable=False)
     is_active: Mapped[bool] = mapped_column(nullable=False, default=True)
+    is_superuser: Mapped[bool] = mapped_column(nullable=False, default=False)
 
     @classmethod
     async def by_email(cls, email: str) -> "User":

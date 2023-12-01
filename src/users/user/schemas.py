@@ -2,7 +2,7 @@ from pydantic import BaseModel, EmailStr, SecretStr, field_validator
 from typing import Optional
 from passlib.context import CryptContext
 
-from src.utils.schemas import IdView
+from src.utils.schemas import UUIDView
 
 __all__ = [
     "UserCreate",
@@ -37,8 +37,7 @@ class UserUpdate(BaseModel, UserPassHashMixin):
     is_active: Optional[bool] = None
 
 
-class UserMiniView(BaseModel):
-    id: str
+class UserMiniView(BaseModel, UUIDView):
     email: EmailStr
     first_name: str
     last_name: str
@@ -47,8 +46,7 @@ class UserMiniView(BaseModel):
         from_attributes = True
 
 
-class UserView(BaseModel):
-    id: str
+class UserView(BaseModel, UUIDView):
     email: EmailStr
     first_name: str
     last_name: str
@@ -58,7 +56,7 @@ class UserView(BaseModel):
         from_attributes = True
 
 
-class UserMeView(BaseModel, IdView):
+class UserMeView(BaseModel, UUIDView):
     email: str
     first_name: str
     last_name: str

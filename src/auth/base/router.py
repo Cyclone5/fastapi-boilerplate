@@ -36,7 +36,7 @@ async def logout():
     resp.delete_cookie("Authorization")
     return resp
 
-@auth.get("/me")
+@auth.get("me")
 async def me(current_user: User = Depends(get_current_user)):
     return JSONResponse(status_code=200, content=UserMeView.model_validate(current_user).model_dump())
 
@@ -49,5 +49,8 @@ async def reset_password():
     pass
 
 @auth.post("/oauth2/google")
-async def google_login():
-    pass
+async def google_login(credentials: str):
+    content = await AuthService.google_login(credentials)
+    resp = JSONResponse(status_code=content.status, content=content.model_dump())
+    resp.set_cookie("Authorization", value=content.details, max_age=60*config.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
+    return resp

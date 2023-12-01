@@ -26,7 +26,7 @@ class GeneralResponse(BaseModel, typing.Generic[T]):
         print(lang)
         return self
 
-class IdView:  # use with BaseModel subclassed
+class UUIDView:  # use with BaseModel subclassed
     id: typing.Union[UUID, str]
 
     @field_validator('id')

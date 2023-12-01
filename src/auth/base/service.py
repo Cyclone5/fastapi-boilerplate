@@ -1,3 +1,5 @@
+import httpx
+
 from src.auth.base.schemas import RegisterSchema, LoginSchema
 
 from src.utils.schemas import GeneralResponse
@@ -11,6 +13,7 @@ from src.settings import config
 from datetime import datetime, timedelta
 from jose import jwt
 from passlib.context import CryptContext
+from passlib import pwd
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -57,3 +60,39 @@ class AuthService:
             data={"sub": user.email}, expires_delta=config.JWT_ACCESS_TOKEN_EXPIRE_MINUTES
         )
         return GeneralResponse(status=200, message="Logged in successfully", details=access_token)
+
+    @staticmethod
+    async def google_login(credentials: str):
+        # @TODO Google login
+        async with httpx.AsyncClient() as client:
+            resp = await client.post("https://oauth2.googleapis.com/token", data={
+                "code": credentials,
+                "client_id": config.GOOGLE_CLIENT_ID,
+                "client_secret": config.GOOGLE_CLIENT_SECRET,
+                "redirect_uri": config.GOOGLE_REDIRECT_URI,
+                "grant_type": "authorization_code",
+            })
+            if resp.status_code != 200:
+                raise AuthError("Google login failed")
+            resp_json = resp.json()
+            resp = await client.get("https://www.googleapis.com/oauth2/v1/userinfo", headers={
+                "Authorization": f"Bearer {resp_json['access_token']}"
+            })
+            if resp.status_code != 200:
+                raise AuthError("Google login failed")
+            resp_json = resp.json()
+            user = await User.by_email(User.email == resp_json["email"])
+            print("user bu", user)
+            if user is None:
+                user = User.create(
+                    UserCreate(
+                        email=resp_json["email"],
+                        password=pwd.genword(length=24, charset="ascii_50"),
+                        first_name=resp_json["given_name"],
+                        last_name=resp_json["family_name"],
+                    )
+                )
+            access_token = AuthService.create_access_token(
+                data={"sub": user.email}, expires_delta=config.JWT_ACCESS_TOKEN_EXPIRE_MINUTES
+            )
+            return GeneralResponse(status=200, message="Logged in successfully", details=access_token)

@@ -4,6 +4,8 @@ from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, Asyn
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped, mapped_column
 from datetime import datetime
+from typing import Optional
+from sqlalchemy import select, func
 
 from src.settings import config
 
@@ -16,6 +18,15 @@ class Base(DeclarativeBase):
 
     def __repr__(self):
         return f"<{self.__class__.__name__} {self.__dict__}>"
+
+    @classmethod
+    async def get_count(cls, where_query: Optional[str] = None):
+        async with get_db() as db:
+            if where_query is None:
+                query = select(func.count()).select_from(cls)
+            else:
+                query = select(func.count()).select_from(cls).where(where_query)
+            return await db.scalar(query)
 
 @contextlib.asynccontextmanager
 async def get_db() -> AsyncSession:
